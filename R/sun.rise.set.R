@@ -107,6 +107,7 @@ sun.rise.set <- function(datetimes, lat){
 	# as POSIXct. I will leave it this way for now, though if someone knows how to get it to show up as
 	# a matrix *and* a POSIXct value, that would be super cool.
 
-	return(as.POSIXct(matrix(c(rise, set), ncol=2), origin='1970-01-01'))
+	# return(as.POSIXct(matrix(c(rise, set), ncol=2), origin='1970-01-01')) # current implementation (preserve for backwards compatibility?)
+	return(data.frame(rise = rise, set = set)) # proposed implementation
 
 }
