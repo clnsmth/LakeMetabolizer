@@ -54,9 +54,13 @@ is.night <- function(datetimes, lat){
 #'Calculates the time of sunrise and sunset based on latitude and date.
 #'
 #'@usage
-#'sun.rise.set(datetimes, lat)
+#'sun.rise.set(datetimes, lat, with.sys.timezone = TRUE)
 #'@param datetimes Vector of dates as \code{POSIXct} or \code{POSIXlt} (see \code{\link{DateTimeClasses}}) format
 #'@param lat Single latitude value of site. South should be negative, north positive
+#'@param with.sys.timezone Logical value indicating whether to return values 
+#'in the time zone specified by \code{Sys.timezone()} 
+#'(\code{with.sys.timezone = TRUE}), or in the timezone specified by the 
+#'\code{tzone} attribute of POSIXct and POSIXlt values.
 #'
 #'@return A 2-column matrix, first column sunrise, second column sunset, as \link{POSIXct} format. 
 #'Value is NA when there is no defined sunrise or sunset for that day (winter/summer at high and low latitudes).
@@ -72,7 +76,7 @@ is.night <- function(datetimes, lat){
 #'\link{is.night}
 #'\link{is.day}
 #'@export
-sun.rise.set <- function(datetimes, lat){
+sun.rise.set <- function(datetimes, lat, with.sys.timezone = TRUE){
 
 	doy <- as.POSIXlt(datetimes)$yday+1 # POSIX functions treat January 1 as day of year 0, so add 1 to compensate
 
@@ -103,11 +107,11 @@ sun.rise.set <- function(datetimes, lat){
 	rise <- trunc(datetimes, 'day') + sr*60*60
 	set <- trunc(datetimes, 'day') + ss*60*60
 
-	##Note, this does weird things. It *is* a matrix, but it doesn't print like one because it is viewed 
-	# as POSIXct. I will leave it this way for now, though if someone knows how to get it to show up as
-	# a matrix *and* a POSIXct value, that would be super cool.
-
-	# return(as.POSIXct(matrix(c(rise, set), ncol=2), origin='1970-01-01')) # current implementation (preserve for backwards compatibility?)
-	return(data.frame(rise = rise, set = set)) # proposed implementation
+	# Return
+	if (isTRUE(with.sys.timezone)) {
+	  return(as.POSIXct(matrix(c(rise, set), ncol=2), origin='1970-01-01'))
+	} else if (isFALSE(with.sys.timezone)) {
+	  return(data.frame(rise = rise, set = set))
+	}
 
 }

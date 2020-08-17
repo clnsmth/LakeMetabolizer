@@ -7,15 +7,17 @@ test_that("POSIXct tzone attributes are used", {
   
   # Current implementation ----------------------------------------------------
   
-  # Sys.timezone() == "America/Los_Angeles"
-  sun.rise.set(lat = 37.880280, datetimes = as.POSIXlt('2019-08-17'))
-  # Returns a rise time of "05:17:25", which is ~ 1 hr and 10 min earlier than the actual rise
-  # time.
+  # Value returned in time zone of Sys.timezone() (may be an hour off in in daylight savings time)
+  sun.rise.set(lat = 40.75, datetimes = as.POSIXlt('2013-03-31')) # Date is CDT but output is CST
   
-  # Sys.timezone() == "America/Los_Angeles" and tzone attribute is "Etc/GMT+5" (CDT)
-  sun.rise.set(lat = 37.880280, datetimes = as.POSIXlt('2019-08-17', tz = "Etc/GMT+5"))
-  # Returns a rise time of "2019-08-17 03:16:21 PDT" which is ~ 1 hr and 10 min earlier than the 
-  # actual rise time (with some precision issues, i.e. should match PDT minute resolution).
+  # Specifying a time zone and setting with.sys.tzone = TRUE results in Value returned in 
+  # time zone of Sys.timezone() with respect to the tzone attribute of the POSIXct POSIXlt
+  # object (and may be an hour off in in daylight savings time) but note the
+  sun.rise.set(lat = 40.75, datetimes = as.POSIXlt('2013-03-31', tz = "Etc/GMT+5")) # Date is CDT but output is CST
+  
+  # POSIXct inputs produce same results as POSIXlt
+  sun.rise.set(lat = 40.75, datetimes = as.POSIXct('2013-03-31'))
+  sun.rise.set(lat = 40.75, datetimes = as.POSIXct('2013-03-31', tz = "Etc/GMT+5"))
   
   # Proposed implementation ---------------------------------------------------
   
