@@ -5,27 +5,47 @@ library(LakeMetabolizer)
 
 test_that("POSIXct tzone attributes are used", {
   
-  # Current implementation ----------------------------------------------------
+  # Parameterize --------------------------------------------------------------
   
-  # Value returned in time zone of Sys.timezone() (may be an hour off in in daylight savings time)
-  sun.rise.set(lat = 40.75, datetimes = as.POSIXlt('2013-03-31')) # Date is CDT but output is CST
+  # Chicago
+  time_zone <- "America/Chicago"
+  time_zone <- "Etc/GMT+5"
+  latitude <- 41.8781
+  longitude <- -87.6298
   
-  # Specifying a time zone and setting with.sys.tzone = TRUE results in Value returned in 
-  # time zone of Sys.timezone() with respect to the tzone attribute of the POSIXct POSIXlt
-  # object (and may be an hour off in in daylight savings time) but note the
-  sun.rise.set(lat = 40.75, datetimes = as.POSIXlt('2013-03-31', tz = "Etc/GMT+5")) # Date is CDT but output is CST
+  # daylight to standard time transition
+  dates <- c("2012-11-01", 
+             "2012-11-02",
+             "2012-11-03",
+             "2012-11-04",
+             "2012-11-05",
+             "2012-11-06")
   
-  # POSIXct inputs produce same results as POSIXlt
-  sun.rise.set(lat = 40.75, datetimes = as.POSIXct('2013-03-31'))
-  sun.rise.set(lat = 40.75, datetimes = as.POSIXct('2013-03-31', tz = "Etc/GMT+5"))
+  # Target behavior -----------------------------------------------------------
+  
+  dplyr::select(
+    suncalc::getSunlightTimes(
+      date = as.Date(dates),
+      lat = latitude,
+      lon = longitude, 
+      tz = time_zone),
+    sunrise, 
+    sunset)$sunrise
   
   # Proposed implementation ---------------------------------------------------
   
-  r <- sun.rise.set(lat = 37.880280, datetimes = as.POSIXlt('2019-08-17', tz = "Etc/GMT+5"))
-  class(r$rise)
-  class(r$set)
-  attr(r$rise, "tzone")
-  attr(r$set, "tzone")
-  lubridate::with_tz(r$rise, tzone = "Etc/GMT+7") # In PDT
+  LakeMetabolizer::sun.rise.set(
+    # as.POSIXct(dates),
+    as.POSIXct(dates, tz = time_zone),
+    lat = latitude, 
+    with.sys.timezone = FALSE)$rise
+  
+  # Current implementation ----------------------------------------------------
+  
+  riseset_lm <- LakeMetabolizer::sun.rise.set(
+    as.POSIXct(dates, tz = time_zone),
+    lat = latitude, 
+    with.sys.timezone = FALSE)
+  
   
 })

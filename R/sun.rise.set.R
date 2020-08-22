@@ -80,10 +80,8 @@ sun.rise.set <- function(datetimes, lat, with.sys.timezone = TRUE){
 
 	doy <- as.POSIXlt(datetimes)$yday+1 # POSIX functions treat January 1 as day of year 0, so add 1 to compensate
 
-
 	#TODO: Add leap-year fix
 	dayAngle <- 2*pi*(doy-1)/365
-
 
 	degToRad <- 2*pi/360
 	radToDeg <- 180/pi
@@ -106,6 +104,12 @@ sun.rise.set <- function(datetimes, lat, with.sys.timezone = TRUE){
 	#convert to seconds into day
 	rise <- trunc(datetimes, 'day') + sr*60*60
 	set <- trunc(datetimes, 'day') + ss*60*60
+	
+	browser()
+	# TODO: Adjust to timezone if specified
+	if (attr(datetimes, "tzone") != "") {
+	  attr(rise, "tzone") <- "America/Los_Angeles" # base equivalent of lubridate::with_tz()
+	}
 
 	# Return
 	if (isTRUE(with.sys.timezone)) {
